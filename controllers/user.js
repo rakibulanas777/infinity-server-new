@@ -95,6 +95,68 @@ const loginController = async (req, res) => {
     });
   }
 };
+const switchUserToVendor = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Find the user by ID
+    const user = await User.findById(userId);
+    const token = jwt.sign({ id: req.body.userId }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update the user's role to 'vendor'
+    user.role = "vendor";
+    await user.save();
+
+    res.status(200).json({
+      message: "You are now switch as a vendor",
+      success: true,
+      data: {
+        user,
+        token,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const switchVendorToUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const vendor = await User.findById(userId);
+    const token = jwt.sign({ id: req.body.userId }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    if (!vendor) {
+      return res.status(404).json({ message: "Vendor not found" });
+    }
+
+    // Update the vendor's role to 'user'
+    vendor.role = "user";
+    await vendor.save();
+
+    res.status(200).json({
+      message: "You are now switched as a user",
+      success: true,
+      data: {
+        user: vendor,
+        token,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 const applySellerController = async (req, res) => {
   try {
@@ -225,4 +287,6 @@ module.exports = {
   authController,
   registerController,
   protect,
+  switchUserToVendor,
+  switchVendorToUser,
 };

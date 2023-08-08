@@ -7,6 +7,8 @@ const {
   authController,
   addProductsController,
   applySellerController,
+  switchVendorToUser,
+  switchUserToVendor,
 } = require("../controllers/user");
 
 const { protect } = require("../middlewares/authMiddleware");
@@ -42,6 +44,10 @@ const router = express.Router();
 router.post("/register", registerController);
 router.get("/", protect, getUsers);
 router.post("/login", loginController);
+router.put("/switch-to-vendor/:userId", switchUserToVendor);
+
+// Switch vendor to user
+router.put("/switch-to-user/:userId", switchVendorToUser);
 router.post("/getUserData", protect, authController);
 router.post("/addProducts", protect, addProductsController);
 router.post("/apply-seller", protect, applySellerController);

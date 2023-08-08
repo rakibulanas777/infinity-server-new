@@ -31,17 +31,6 @@ const ProductsSchema = new mongoose.Schema(
     description: {
       type: String,
     },
-    location: {
-      type: String,
-    },
-    bids: {
-      type: Array,
-      default: [],
-    },
-    comments: {
-      type: Array,
-      default: [],
-    },
 
     catagory: {
       type: String,

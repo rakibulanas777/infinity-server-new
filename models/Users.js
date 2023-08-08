@@ -13,7 +13,6 @@ const UserSchema = new mongoose.Schema(
       unique: true,
       validate: [validator.isEmail, "Please provide a valid email"],
     },
-    image: String,
     password: {
       type: String,
       required: [true, "Please provide a password"],
@@ -36,13 +35,54 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    notification: {
-      type: Array,
-      default: [],
+    role: {
+      type: String,
+      enum: ["user", "vendor"],
+      default: "user",
     },
-    seenNotification: {
-      type: Array,
-      default: [],
+    bankAccount: {
+      accountNumber: {
+        type: String,
+        required: false,
+      },
+      bankName: {
+        type: String,
+        required: false,
+      },
+      iban: {
+        type: String,
+        required: false,
+      },
+      bic: {
+        type: String,
+        required: false,
+      },
+    },
+    address: {
+      street: {
+        type: String,
+        required: false,
+      },
+      city: {
+        type: String,
+        required: false,
+      },
+      state: {
+        type: String,
+        required: false,
+      },
+      zipCode: {
+        type: String,
+        required: false,
+      },
+      country: {
+        type: String,
+        required: false,
+      },
+    },
+    profileImage: {
+      type: String,
+      required: false,
     },
   },
   { timestamps: true }

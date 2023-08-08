@@ -3,25 +3,26 @@ const User = require("../models/Users");
 const Product = require("../models/Products");
 
 // Place a bid on a product
-exports.placeBid = async (req, res) => {
+const placeBid = async (req, res) => {
   try {
-    const { productId, amount, userId } = req.body;
+    const { productId } = req.params;
+    const { amount, userId } = req.body;
 
     // Check if the user is a vendor (vendors cannot place bids)
     const user = await User.findOne({ _id: userId });
-    console.log(user);
+    console.log(productId);
     // if (user.isSeller) {
     //   return res
     //     .status(401)
     //     .json({ message: "Seller cannot place bids", success: false });
     // }
 
-    // Check if the bid amount is valid (positive number)
-    if (typeof amount !== "number" || amount <= 0) {
-      return res
-        .status(400)
-        .json({ message: "Invalid bid amount", success: false });
-    }
+    // // Check if the bid amount is valid (positive number)
+    // if (typeof amount !== "number" || amount <= 0) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "Invalid bid amount", success: false });
+    // }
 
     // Check if the product exists
     const product = await Product.findById(productId);
@@ -52,4 +53,8 @@ exports.placeBid = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
+};
+
+module.exports = {
+  placeBid,
 };
