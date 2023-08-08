@@ -1,10 +1,10 @@
 const Products = require("../models/Products");
-
+const Bid = require("../models/Bids");
 const createProduct = async (req, res, next) => {
   const newProduct = new Products(req.body);
   const saveProduct = await newProduct.save();
   res.status(200).json(saveProduct);
-  console.log(saveProduct);
+
   next();
 };
 
@@ -28,11 +28,18 @@ const getProductsController = async (req, res) => {
   try {
     const products = await Products.find();
 
+    const productsWithBids = await Promise.all(
+      products.map(async (product) => {
+        const bidCount = await Bid.countDocuments({ product: product._id });
+        return { ...product._doc, bidCount }; // Merge bid count into product data
+      })
+    );
+
     return res.status(201).send({
       message: `all products`,
       success: true,
       data: {
-        products,
+        products: productsWithBids,
       },
     });
   } catch (error) {
@@ -89,7 +96,6 @@ const updateProduct = async (req, res) => {
 
 const getProductById = async (req, res) => {
   try {
-    console.log(req.params.id);
     const product = await Products.findById(req.params.id);
 
     return res.status(201).send({

@@ -1,30 +1,26 @@
 const mongoose = require("mongoose");
-const BidsSchema = new mongoose.Schema(
-	{
-		cuser: {
 
-				type: mongoose.Schema.ObjectId,
-				ref: "User",
-		},
-		product: {
-				type: mongoose.Schema.ObjectId,
-				ref: "Products",
-		},
-		bids: {
-			type: Number,
-			default: 0,
-		},		
+const bidSchema = new mongoose.Schema({
+  product: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+    required: true,
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  amount: {
+    type: Number,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
-		price: {
-			type: Number,
-			required: true,
-		},
+const Bid = mongoose.model("Bid", bidSchema);
 
-		description: {
-			type: String,
-		},
-
-	},
-	{ timestamps: true }
-);
-module.exports = mongoose.model("Bids", BidsSchema);
+module.exports = Bid;

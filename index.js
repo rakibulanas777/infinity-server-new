@@ -37,7 +37,7 @@ app.use(express.json());
 app.use("/api/v1/user", express.static("./uploads"), userRoute);
 // app.use("/register", authRoute);
 app.use("/api/v1/product", productRoute);
-app.use("/bids", bidsRoute);
+app.use("/api/v1/bids", bidsRoute);
 
 app.listen(port, () => {
 	connect();

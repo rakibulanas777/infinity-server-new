@@ -1,14 +1,9 @@
 const express = require("express");
-const {
-	createBids,
-	getBids
-} = require("../controllers/bids");
-
 const router = express.Router();
+const bidsController = require("../controllers/bids");
+const { protect } = require("../middlewares/authMiddleware");
 
-
-router.post("/", createBids);
-router.get("/", getBids);
-
+// Place a bid on a product
+router.post("/", bidsController.placeBid);
 
 module.exports = router;
