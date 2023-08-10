@@ -7,6 +7,8 @@ const {
   createProduct,
   updateProduct,
   markDelivered,
+  selectWinner,
+  getProductsForVendor,
 } = require("../controllers/products");
 
 const { protect } = require("../middlewares/authMiddleware");
@@ -15,8 +17,10 @@ const router = express.Router();
 
 router.get("/", getProductsController);
 router.patch("/:productId/complete", protect, markDelivered);
+router.patch("/:productId/select-winner", selectWinner);
 router.get("/:id", getProductById);
 router.delete("/:id", deleteProduct);
+router.get("/vendor/:vendorId", getProductsForVendor);
 router.put("/:id", updateProduct);
 router.post("/", protect, getProductController);
 router.post("/", createProduct);

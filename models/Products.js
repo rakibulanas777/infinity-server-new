@@ -1,34 +1,20 @@
 const mongoose = require("mongoose");
 const ProductsSchema = new mongoose.Schema(
   {
-    userId: {
-      type: String,
-    },
     title: {
       type: String,
-      required: [true, "Please provide title"],
+      required: true,
     },
-
-    company: {
+    description: {
       type: String,
-    },
-
-    totalPrice: {
-      type: Number,
       required: true,
     },
-    sellingPrice: {
-      type: Number,
-      required: true,
-    },
-    minPrice: {
-      type: Number,
+    vendor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
     image: {
-      type: String,
-    },
-    description: {
       type: String,
     },
     delivered: {
@@ -37,6 +23,35 @@ const ProductsSchema = new mongoose.Schema(
     },
     catagory: {
       type: String,
+    },
+    sellingPrice: {
+      type: Number,
+      required: false,
+    },
+
+    startPrice: {
+      type: Number,
+      required: true,
+    },
+    endTime: {
+      type: Date,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ["active", "ended"],
+      default: "active",
+    },
+    winner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    winningBidAmount: {
+      type: Number,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
     },
   },
   { timestamps: true }

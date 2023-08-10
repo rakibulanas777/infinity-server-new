@@ -9,6 +9,7 @@ const {
   applySellerController,
   switchVendorToUser,
   switchUserToVendor,
+  updateUserProfile,
 } = require("../controllers/user");
 
 const { protect } = require("../middlewares/authMiddleware");
@@ -45,7 +46,7 @@ router.post("/register", registerController);
 router.get("/", protect, getUsers);
 router.post("/login", loginController);
 router.put("/switch-to-vendor/:userId", switchUserToVendor);
-
+router.put("/complete-profile", protect, updateUserProfile);
 // Switch vendor to user
 router.put("/switch-to-user/:userId", switchVendorToUser);
 router.post("/getUserData", protect, authController);

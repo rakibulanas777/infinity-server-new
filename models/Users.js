@@ -31,10 +31,7 @@ const UserSchema = new mongoose.Schema(
       select: false,
     },
     passwordChangedAt: Date,
-    isSeller: {
-      type: Boolean,
-      default: false,
-    },
+
     role: {
       type: String,
       enum: ["user", "vendor", "admin"],

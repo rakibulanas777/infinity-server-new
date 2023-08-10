@@ -55,7 +55,7 @@ const getProductsController = async (req, res) => {
 const markDelivered = async (req, res) => {
   try {
     const { productId } = req.params;
-    const product = await Products.findById(productId).populate("user");
+    const product = await Products.findById(productId).populate("winner");
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
@@ -122,7 +122,7 @@ const updateProduct = async (req, res) => {
 
 const getProductById = async (req, res) => {
   try {
-    const product = await Products.findById(req.params.id);
+    const product = await Products.findById(req.params.id).populate("winner");
 
     return res.status(201).send({
       message: `your products`,
@@ -140,8 +140,55 @@ const getProductById = async (req, res) => {
   }
 };
 
+const getProductsForVendor = async (req, res) => {
+  try {
+    const vendorId = req.params.vendorId;
+    const products = await Products.find({ vendor: vendorId });
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const selectWinner = async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    const product = await Products.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    if (product.status !== "active") {
+      return res.status(400).json({ message: "Product is not active" });
+    }
+
+    const highestBid = await Bid.findOne({ product: product._id }).sort({
+      amount: -1,
+    });
+    if (highestBid) {
+      product.winner = highestBid.user;
+      product.winningBidAmount = highestBid.amount;
+      product.status = "ended";
+      await product.save();
+
+      res.status(200).json({ message: "Winner selected successfully" });
+    } else {
+      res.status(404).json({ message: "No bids found for the product" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   getProductById,
+  selectWinner,
+  getProductsForVendor,
   getProductController,
   deleteProduct,
   getProductsController,
