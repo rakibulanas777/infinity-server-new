@@ -31,11 +31,14 @@ const ProductsSchema = new mongoose.Schema(
     description: {
       type: String,
     },
-
+    delivered: {
+      type: Boolean,
+      default: false,
+    },
     catagory: {
       type: String,
     },
   },
   { timestamps: true }
 );
-module.exports = mongoose.model("Products", ProductsSchema);
+module.exports = mongoose.model("Product", ProductsSchema);

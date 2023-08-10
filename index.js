@@ -6,29 +6,31 @@ const bidsRoute = require("./routes/bids");
 const productRoute = require("./routes/products");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const socketIO = require("./socket");
+const http = require("http");
 const app = express();
 dotenv.config();
 const port = process.env.PORT || 8000;
 app.use(cors());
 app.get("/", (req, res) => {
-	res.send("Hello world ");
+  res.send("Hello world ");
 });
 
 //connect with database
 const connect = async () => {
-	try {
-		await mongoose.connect(process.env.MONGODB);
-		console.log("Connected");
-	} catch (error) {
-		throw error;
-	}
+  try {
+    await mongoose.connect(process.env.MONGODB);
+    console.log("Connected");
+  } catch (error) {
+    throw error;
+  }
 };
 
 mongoose.connection.on("disconnected", () => {
-	console.log("disconnected");
+  console.log("disconnected");
 });
 mongoose.connection.on("connected", () => {
-	console.log("connected");
+  console.log("connected");
 });
 
 //middlewares
@@ -40,6 +42,6 @@ app.use("/api/v1/product", productRoute);
 app.use("/api/v1/bids", bidsRoute);
 
 app.listen(port, () => {
-	connect();
-	console.log(`LIstening on port ${port}`);
+  connect();
+  console.log(`LIstening on port ${port}`);
 });

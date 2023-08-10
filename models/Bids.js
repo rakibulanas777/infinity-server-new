@@ -15,6 +15,10 @@ const bidSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  approved: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
