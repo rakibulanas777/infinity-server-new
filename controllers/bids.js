@@ -54,6 +54,22 @@ const placeBid = async (req, res) => {
 
     // If the user has not bid before, create a new bid
     const newBid = new Bid({ product: productId, user: userId, amount });
+
+    // Notify the vendor about the new bid
+    const vendorNotification = await User.findById(vendor);
+    if (vendorNotification) {
+      const notificationMessage = `${user.name} new bid has been placed on your product "${product.title} of $${amount}"`;
+
+      // Add the notification to the vendor's notifications array
+      vendorNotification.notifications.push({
+        type: "bidPlaced",
+        message: notificationMessage,
+        timestamp: new Date(),
+      });
+
+      await vendorNotification.save();
+    }
+
     await newBid.save();
 
     res.status(201).json({ message: "Bid placed successfully", bid: newBid });

@@ -2,8 +2,7 @@ const bcrypt = require("bcrypt");
 const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
 const User = require("../models/Users");
-const AppError = require("../utils/appError");
-const catchAsync = require("../utils/catchAsync");
+
 const Products = require("../models/Products");
 
 const registerController = async (req, res) => {
@@ -210,76 +209,6 @@ const addProductsController = async (req, res) => {
   }
 };
 
-const authController = async (req, res) => {
-  try {
-    const user = await User.findOne({ _id: req.body.userId });
-    if (!user) {
-      return res.status(200).send({
-        message: "User not found",
-        success: false,
-      });
-    } else {
-      console.log(user);
-      return res.status(200).send({
-        message: "Register Successfully",
-        data: {
-          user,
-        },
-        success: true,
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      message: `Auth error`,
-    });
-  }
-};
-
-const getUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
-  if (req.query.email) {
-    const search = req.query.email;
-    const matched = users.filter((user) => user.email.includes(search));
-    res.status(200).json(matched);
-  } else {
-    res.status(200).json(users);
-  }
-  next();
-});
-
-const protect = catchAsync(async (req, res, next) => {
-  let token;
-
-  token = req.headers.authorization.split(" ")[1];
-
-  if (!token) {
-    return next(
-      new AppError("You are not logged in ! Please log in to get access", 401)
-    );
-  }
-
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  console.log(decoded);
-  const currentUser = await User.findById(decoded.id);
-  if (!currentUser) {
-    return next(
-      new AppError(
-        "The user belonging to this token does no longer exist.",
-        401
-      )
-    );
-  }
-  if (currentUser.changedPasswordAfter(decoded.iat)) {
-    return next(
-      new AppError("User recently changed password! Please log in again.", 401)
-    );
-  }
-  req.user = currentUser;
-  next();
-});
-
 // Update user profile
 const updateUserProfile = async (req, res) => {
   const { name, address, bankAccount, userId } = req.body;
@@ -306,14 +235,13 @@ const updateUserProfile = async (req, res) => {
 };
 
 module.exports = {
-  getUsers,
   applySellerController,
   addProductsController,
   loginController,
-  authController,
+
   updateUserProfile,
   registerController,
-  protect,
+
   switchUserToVendor,
   switchVendorToUser,
 };

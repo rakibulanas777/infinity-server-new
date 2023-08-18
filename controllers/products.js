@@ -1,4 +1,5 @@
 const Products = require("../models/Products");
+const User = require("../models/Users");
 const Bid = require("../models/Bids");
 const createProduct = async (req, res, next) => {
   const newProduct = new Products(req.body);
@@ -145,7 +146,10 @@ const getProductsForVendor = async (req, res) => {
     const vendorId = req.params.vendorId;
     const products = await Products.find({ vendor: vendorId });
 
-    res.status(200).json(products);
+    res.status(200).json({
+      products,
+      success: true,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
@@ -174,11 +178,34 @@ const selectWinner = async (req, res) => {
       product.winningBidAmount = highestBid.amount;
       product.status = "ended";
       await product.save();
+      const winner = await User.findById(product.winner);
+
+      const notificationMessage = `${winner.name} new bid has been placed on your product "${product.title} of $${highestBid}"`;
+
+      // Add the notification to the vendor's notifications array
+      winner.notifications.push({
+        type: "selectWInner",
+        message: notificationMessage,
+        timestamp: new Date(),
+      });
+      await winner.save();
 
       res.status(200).json({ message: "Winner selected successfully" });
     } else {
       res.status(404).json({ message: "No bids found for the product" });
     }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const getTopBiddingProducts = async (req, res) => {
+  try {
+    const topBidProducts = await Products.find();
+    // .sort({ "bids.length": -1 })
+    // .limit(5);
+    res.status(200).json(topBidProducts);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
@@ -193,6 +220,7 @@ module.exports = {
   deleteProduct,
   getProductsController,
   updateProduct,
+  getTopBiddingProducts,
   markDelivered,
   createProduct,
 };

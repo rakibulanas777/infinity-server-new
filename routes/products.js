@@ -9,6 +9,7 @@ const {
   markDelivered,
   selectWinner,
   getProductsForVendor,
+  getTopBiddingProducts,
 } = require("../controllers/products");
 
 const { protect } = require("../middlewares/authMiddleware");
@@ -20,9 +21,9 @@ router.patch("/:productId/complete", protect, markDelivered);
 router.patch("/:productId/select-winner", selectWinner);
 router.get("/:id", getProductById);
 router.delete("/:id", deleteProduct);
-router.get("/vendor/:vendorId", getProductsForVendor);
+router.get("/vendor/:vendorId", protect, getProductsForVendor);
 router.put("/:id", updateProduct);
 router.post("/", protect, getProductController);
 router.post("/", createProduct);
-
+router.get("/top-bidding", getTopBiddingProducts);
 module.exports = router;

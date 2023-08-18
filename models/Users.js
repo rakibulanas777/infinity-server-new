@@ -37,6 +37,13 @@ const UserSchema = new mongoose.Schema(
       enum: ["user", "vendor", "admin"],
       default: "user",
     },
+    notifications: [
+      {
+        type: { type: String },
+        message: String,
+        timestamp: Date,
+      },
+    ],
     bankAccount: {
       accountNumber: {
         type: String,
