@@ -114,6 +114,30 @@ const getNewProducts = async (req, res) => {
   }
 };
 
+const getEndingSoonProducts = async (req, res) => {
+  try {
+    const currentDateTime = new Date();
+
+    const endTimeRange = new Date(currentDateTime);
+    endTimeRange.setHours(currentDateTime.getHours() + 24);
+
+    const endingSoonProducts = await Products.find({})
+      .sort({ endTime: 1 }) // Sort by endTime in ascending order
+      .limit(4);
+
+    res.status(200).json({
+      message: `your products`,
+      success: true,
+      data: {
+        products: endingSoonProducts,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching ending soon products:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 const updateProduct = async (req, res) => {
   try {
     const updatedproduct = await Products.findByIdAndUpdate(
@@ -210,6 +234,7 @@ module.exports = {
   deleteProduct,
   getProductsController,
   updateProduct,
+  getEndingSoonProducts,
   getNewProducts,
   markDelivered,
   createProduct,
