@@ -1,9 +1,10 @@
 const express = require("express");
 
 const {
+  getUsers,
   loginController,
   registerController,
-
+  authController,
   addProductsController,
   applySellerController,
   switchVendorToUser,
@@ -42,11 +43,13 @@ const upload = multer({
 const router = express.Router();
 
 router.post("/register", registerController);
+router.get("/", protect, getUsers);
 router.post("/login", loginController);
 router.put("/switch-to-vendor/:userId", switchUserToVendor);
 router.put("/complete-profile", protect, updateUserProfile);
 // Switch vendor to user
 router.put("/switch-to-user/:userId", switchVendorToUser);
+router.post("/getUserData", protect, authController);
 router.post("/addProducts", protect, addProductsController);
 router.post("/apply-seller", protect, applySellerController);
 
