@@ -113,6 +113,26 @@ const getNewProducts = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+const getMostBidsProducts = async (req, res) => {
+  try {
+    const mostBidsProducts = await Products.find({
+      bidCount: { $exists: true },
+    })
+      .sort({ bidCount: -1 })
+      .limit(4);
+
+    res.status(200).json({
+      message: `your products`,
+      success: true,
+      data: {
+        products: mostBidsProducts,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 const getEndingSoonProducts = async (req, res) => {
   try {
@@ -232,6 +252,7 @@ module.exports = {
   getProductsForVendor,
   getProductController,
   deleteProduct,
+  getMostBidsProducts,
   getProductsController,
   updateProduct,
   getEndingSoonProducts,
