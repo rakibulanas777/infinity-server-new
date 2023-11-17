@@ -97,6 +97,23 @@ const getProductController = async (req, res) => {
   }
 };
 
+const getNewProducts = async (req, res) => {
+  try {
+    const products = await Products.find({}).sort({ createdAt: -1 }).limit(8);
+
+    res.status(200).json({
+      message: `your products`,
+      success: true,
+      data: {
+        products,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 const updateProduct = async (req, res) => {
   try {
     const updatedproduct = await Products.findByIdAndUpdate(
@@ -193,6 +210,7 @@ module.exports = {
   deleteProduct,
   getProductsController,
   updateProduct,
+  getNewProducts,
   markDelivered,
   createProduct,
 };

@@ -9,6 +9,7 @@ const {
   markDelivered,
   selectWinner,
   getProductsForVendor,
+  getNewProducts,
 } = require("../controllers/products");
 
 const { protect } = require("../middlewares/authMiddleware");
@@ -16,6 +17,7 @@ const { protect } = require("../middlewares/authMiddleware");
 const router = express.Router();
 
 router.get("/", getProductsController);
+router.get("/products/new", getNewProducts);
 router.patch("/:productId/complete", protect, markDelivered);
 router.patch("/:productId/select-winner", selectWinner);
 router.get("/:id", getProductById);

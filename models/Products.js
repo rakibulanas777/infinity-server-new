@@ -24,6 +24,15 @@ const ProductsSchema = new mongoose.Schema(
     catagory: {
       type: String,
     },
+    texture: {
+      type: String,
+    },
+    weight: {
+      type: String,
+    },
+    size: {
+      type: String,
+    },
     sellingPrice: {
       type: Number,
       required: false,
