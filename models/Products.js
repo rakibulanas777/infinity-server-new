@@ -48,7 +48,7 @@ const ProductsSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["active", "ended"],
+      enum: ["active", "pause", "ended"],
       default: "active",
     },
     winner: {

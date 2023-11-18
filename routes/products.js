@@ -13,6 +13,7 @@ const {
   getNewProducts,
   getEndingSoonProducts,
   getProductsByCategory,
+  pauseProduct,
 } = require("../controllers/products");
 
 const { protect } = require("../middlewares/authMiddleware");
@@ -32,6 +33,7 @@ router.get("/:id", getProductById);
 router.delete("/:id", deleteProduct);
 router.get("/vendor/:vendorId", getProductsForVendor);
 router.put("/:id", updateProduct);
+router.put("/pause/:id", pauseProduct);
 router.post("/", protect, getProductController);
 router.post("/", createProduct);
 

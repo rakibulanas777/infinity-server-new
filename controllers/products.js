@@ -26,7 +26,7 @@ const deleteProduct = async (req, res) => {
 
 const getProductsController = async (req, res) => {
   try {
-    const products = await Products.find();
+    const products = await Products.find({ status: "active" });
 
     const productsWithBids = await Promise.all(
       products.map(async (product) => {
@@ -99,7 +99,9 @@ const getProductController = async (req, res) => {
 
 const getNewProducts = async (req, res) => {
   try {
-    const products = await Products.find({}).sort({ createdAt: -1 }).limit(8);
+    const products = await Products.find({ status: "active" })
+      .sort({ createdAt: -1 })
+      .limit(8);
     const productsWithBids = await Promise.all(
       products.map(async (product) => {
         const bidCount = await Bid.countDocuments({ product: product._id });
@@ -151,7 +153,7 @@ const getEndingSoonProducts = async (req, res) => {
     const endTimeRange = new Date(currentDateTime);
     endTimeRange.setHours(currentDateTime.getHours() + 24);
 
-    const endingSoonProducts = await Products.find({})
+    const endingSoonProducts = await Products.find({ status: "active" })
       .sort({ endTime: 1 }) // Sort by endTime in ascending order
       .limit(4);
 
@@ -179,7 +181,7 @@ const getProductsByCategory = async (req, res) => {
     // Assuming the category is passed as a parameter in
 
     if (category === "all") {
-      const categoryProducts = await Products.find({});
+      const categoryProducts = await Products.find({ status: "active" });
       const productsWithCatagory = await Promise.all(
         categoryProducts.map(async (product) => {
           const bidCount = await Bid.countDocuments({ product: product._id });
@@ -196,6 +198,7 @@ const getProductsByCategory = async (req, res) => {
     } else {
       const categoryProducts = await Products.find({
         catagory: category,
+        status: "active",
       });
 
       const productsWithCatagory = await Promise.all(
@@ -229,7 +232,29 @@ const updateProduct = async (req, res) => {
       message: `your products`,
       success: true,
       data: {
-        updateProduct,
+        products: updatedproduct,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: `You are not autorized`,
+    });
+  }
+};
+const pauseProduct = async (req, res) => {
+  try {
+    const pauseproduct = await Products.findByIdAndUpdate(
+      req.params.id,
+      { $set: { status: "paused" } },
+      { new: true }
+    );
+    return res.status(201).send({
+      message: `your products`,
+      success: true,
+      data: {
+        products: pauseproduct,
       },
     });
   } catch (error) {
@@ -264,9 +289,19 @@ const getProductById = async (req, res) => {
 const getProductsForVendor = async (req, res) => {
   try {
     const vendorId = req.params.vendorId;
-    const products = await Products.find({ vendor: vendorId });
+    console
+    const products = await Products.find({
+      vendor: vendorId,
+      status: "active",
+    });
 
-    res.status(200).json(products);
+    return res.status(201).send({
+      message: `your products`,
+      success: true,
+      data: {
+        products,
+      },
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
@@ -309,6 +344,7 @@ const selectWinner = async (req, res) => {
 module.exports = {
   getProductById,
   selectWinner,
+  pauseProduct,
   getProductsForVendor,
   getProductController,
   deleteProduct,
