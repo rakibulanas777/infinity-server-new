@@ -100,12 +100,17 @@ const getProductController = async (req, res) => {
 const getNewProducts = async (req, res) => {
   try {
     const products = await Products.find({}).sort({ createdAt: -1 }).limit(8);
-
+    const productsWithBids = await Promise.all(
+      products.map(async (product) => {
+        const bidCount = await Bid.countDocuments({ product: product._id });
+        return { ...product._doc, bidCount }; // Merge bid count into product data
+      })
+    );
     res.status(200).json({
       message: `your products`,
       success: true,
       data: {
-        products,
+        products: productsWithBids,
       },
     });
   } catch (error) {
@@ -120,12 +125,17 @@ const getMostBidsProducts = async (req, res) => {
     })
       .sort({ bidCount: -1 })
       .limit(4);
-
+    const productsWithBids = await Promise.all(
+      mostBidsProducts.map(async (product) => {
+        const bidCount = await Bid.countDocuments({ product: product._id });
+        return { ...product._doc, bidCount }; // Merge bid count into product data
+      })
+    );
     res.status(200).json({
       message: `your products`,
       success: true,
       data: {
-        products: mostBidsProducts,
+        products: productsWithBids,
       },
     });
   } catch (error) {
@@ -145,11 +155,17 @@ const getEndingSoonProducts = async (req, res) => {
       .sort({ endTime: 1 }) // Sort by endTime in ascending order
       .limit(4);
 
+    const productsWithBids = await Promise.all(
+      endingSoonProducts.map(async (product) => {
+        const bidCount = await Bid.countDocuments({ product: product._id });
+        return { ...product._doc, bidCount }; // Merge bid count into product data
+      })
+    );
     res.status(200).json({
       message: `your products`,
       success: true,
       data: {
-        products: endingSoonProducts,
+        products: productsWithBids,
       },
     });
   } catch (error) {
