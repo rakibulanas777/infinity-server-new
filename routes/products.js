@@ -12,6 +12,7 @@ const {
   getProductsForVendor,
   getNewProducts,
   getEndingSoonProducts,
+  getProductsByCategory,
 } = require("../controllers/products");
 
 const { protect } = require("../middlewares/authMiddleware");
@@ -22,8 +23,8 @@ router.get("/", getProductsController);
 router.get("/products/new", getNewProducts);
 router.get("/products/ending-soon", getEndingSoonProducts);
 
-router.get("/products/most-bids", getMostBidsProducts); 
-
+router.get("/products/most-bids", getMostBidsProducts);
+router.get("/products/category", getProductsByCategory);
 router.patch("/:productId/complete", protect, markDelivered);
 router.patch("/:productId/select-winner", selectWinner);
 

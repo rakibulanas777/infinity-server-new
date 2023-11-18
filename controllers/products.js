@@ -173,6 +173,50 @@ const getEndingSoonProducts = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+const getProductsByCategory = async (req, res) => {
+  try {
+    const { category } = req.query;
+    // Assuming the category is passed as a parameter in
+
+    if (category === "all") {
+      const categoryProducts = await Products.find({});
+      const productsWithCatagory = await Promise.all(
+        categoryProducts.map(async (product) => {
+          const bidCount = await Bid.countDocuments({ product: product._id });
+          return { ...product._doc, bidCount }; // Merge bid count into product data
+        })
+      );
+      res.status(200).json({
+        message: `your products`,
+        success: true,
+        data: {
+          products: productsWithCatagory,
+        },
+      });
+    } else {
+      const categoryProducts = await Products.find({
+        catagory: category,
+      });
+
+      const productsWithCatagory = await Promise.all(
+        categoryProducts.map(async (product) => {
+          const bidCount = await Bid.countDocuments({ product: product._id });
+          return { ...product._doc, bidCount }; // Merge bid count into product data
+        })
+      );
+      res.status(200).json({
+        message: `your products`,
+        success: true,
+        data: {
+          products: productsWithCatagory,
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching ending soon products:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 const updateProduct = async (req, res) => {
   try {
@@ -271,6 +315,7 @@ module.exports = {
   getMostBidsProducts,
   getProductsController,
   updateProduct,
+  getProductsByCategory,
   getEndingSoonProducts,
   getNewProducts,
   markDelivered,
