@@ -265,6 +265,28 @@ const pauseProduct = async (req, res) => {
     });
   }
 };
+const activeProduct = async (req, res) => {
+  try {
+    const activeproduct = await Products.findByIdAndUpdate(
+      req.params.id,
+      { $set: { status: "active" } },
+      { new: true }
+    );
+    return res.status(201).send({
+      message: `your product activated`,
+      success: true,
+      data: {
+        products: activeproduct,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: `You are not autorized`,
+    });
+  }
+};
 
 const getProductById = async (req, res) => {
   try {
@@ -289,10 +311,12 @@ const getProductById = async (req, res) => {
 const getProductsForVendor = async (req, res) => {
   try {
     const vendorId = req.params.vendorId;
-    console
+
+    console.log(req.query.status);
+    const val = req.query.status;
     const products = await Products.find({
       vendor: vendorId,
-      status: "active",
+      status: val,
     });
 
     return res.status(201).send({
@@ -351,6 +375,7 @@ module.exports = {
   getMostBidsProducts,
   getProductsController,
   updateProduct,
+  activeProduct,
   getProductsByCategory,
   getEndingSoonProducts,
   getNewProducts,
