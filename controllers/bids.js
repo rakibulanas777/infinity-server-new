@@ -97,11 +97,10 @@ const getBidsForProduct = async (req, res) => {
   }
 };
 
-// Approve a bid and mark product as sold
 const approveBid = async (req, res) => {
   try {
     const { bidId } = req.params;
-    console.log(bidId);
+
     const bid = await Bid.findById(bidId).populate("product");
 
     if (!bid) {
@@ -114,9 +113,20 @@ const approveBid = async (req, res) => {
       bid.approved = true;
       await bid.save();
 
-      // Notify the bidder that their bid is approved
+      product.status = "ended";
 
-      res.status(200).json({ message: "Bid approved", success: true });
+      // Set the winner information in the product
+      product.winner = bid.user;
+      product.winningBidAmount = bid.amount;
+
+      await product.save();
+
+      res
+        .status(200)
+        .json({
+          message: "Bid approved, product ended, and winner selected",
+          success: true,
+        });
     } else {
       res.status(400).json({ message: "Bid already approved" });
     }
@@ -125,6 +135,8 @@ const approveBid = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
 
 module.exports = {
   approveBid,
