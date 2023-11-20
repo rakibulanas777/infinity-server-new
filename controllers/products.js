@@ -51,7 +51,6 @@ const getProductsController = async (req, res) => {
   }
 };
 
-// Mark product as delivered
 const markDelivered = async (req, res) => {
   try {
     const { productId } = req.params;
@@ -97,6 +96,35 @@ const getProductController = async (req, res) => {
   }
 };
 
+const getProductsForUserBids = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const val = req.query.status;
+    const userBids = await Bid.find({ user: userId });
+    const productIds = userBids.map((bid) => bid.product);
+    const products = await Products.find({
+      _id: { $in: productIds },
+      status: val,
+    });
+    const productsWithBids = await Promise.all(
+      products.map(async (product) => {
+        const bidCount = await Bid.countDocuments({ product: product._id });
+        return { ...product._doc, bidCount };
+      })
+    );
+    res.status(200).json({
+      message: `all products`,
+      success: true,
+      data: {
+        products: productsWithBids,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 const getNewProducts = async (req, res) => {
   try {
     const products = await Products.find({ status: "active" })
@@ -125,7 +153,7 @@ const getMostBidsProducts = async (req, res) => {
     const mostBidsProducts = await Products.find({
       bidCount: { $exists: true },
     })
-      .sort({ bidCount: -1 })
+      .sort({ bidCount: 1 })
       .limit(4);
     const productsWithBids = await Promise.all(
       mostBidsProducts.map(async (product) => {
@@ -372,6 +400,7 @@ module.exports = {
   getProductsForVendor,
   getProductController,
   deleteProduct,
+  getProductsForUserBids,
   getMostBidsProducts,
   getProductsController,
   updateProduct,

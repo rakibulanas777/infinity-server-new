@@ -15,6 +15,7 @@ const {
   getProductsByCategory,
   pauseProduct,
   activeProduct,
+  getProductsForUserBids,
 } = require("../controllers/products");
 
 const { protect } = require("../middlewares/authMiddleware");
@@ -38,5 +39,7 @@ router.put("/pause/:id", pauseProduct);
 router.put("/active/:id", activeProduct);
 router.post("/", protect, getProductController);
 router.post("/", createProduct);
+
+router.get("/bids/products/:userId", getProductsForUserBids);
 
 module.exports = router;
