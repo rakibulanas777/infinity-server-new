@@ -78,6 +78,24 @@ const getAllBidsForProduct = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+const getBidsForProduct = async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    const bids = await Bid.find({ product: productId })
+      .populate("user")
+      .sort({ amount: -1 }) // Sort by bid amount in descending order
+      .limit(5);
+
+    res.status(200).json({
+      bids,
+      success: true,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 // Approve a bid and mark product as sold
 const approveBid = async (req, res) => {
@@ -111,5 +129,6 @@ const approveBid = async (req, res) => {
 module.exports = {
   approveBid,
   placeBid,
+  getBidsForProduct,
   getAllBidsForProduct,
 };
