@@ -102,23 +102,41 @@ const getProductsForUserBids = async (req, res) => {
     const val = req.query.status;
     const userBids = await Bid.find({ user: userId });
     const productIds = userBids.map((bid) => bid.product);
-    const products = await Products.find({
-      _id: { $in: productIds },
-      status: val,
-    });
-    const productsWithBids = await Promise.all(
-      products.map(async (product) => {
-        const bidCount = await Bid.countDocuments({ product: product._id });
-        return { ...product._doc, bidCount };
-      })
-    );
-    res.status(200).json({
-      message: `all products`,
-      success: true,
-      data: {
-        products: productsWithBids,
-      },
-    });
+    if (val === "winproduct") {
+      const wonProducts = await Products.find({ winner: userId });
+      const productsWithBids = await Promise.all(
+        wonProducts.map(async (product) => {
+          const bidCount = await Bid.countDocuments({ product: product._id });
+          return { ...product._doc, bidCount };
+        })
+      );
+
+      res.status(200).json({
+        message: `all products`,
+        success: true,
+        data: {
+          products: productsWithBids,
+        },
+      });
+    } else {
+      const products = await Products.find({
+        _id: { $in: productIds },
+        status: val,
+      });
+      const productsWithBids = await Promise.all(
+        products.map(async (product) => {
+          const bidCount = await Bid.countDocuments({ product: product._id });
+          return { ...product._doc, bidCount };
+        })
+      );
+      res.status(200).json({
+        message: `all products`,
+        success: true,
+        data: {
+          products: productsWithBids,
+        },
+      });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
