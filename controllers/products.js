@@ -398,6 +398,7 @@ const selectWinner = async (req, res) => {
     if (highestBid) {
       product.winner = highestBid.user;
       product.winningBidAmount = highestBid.amount;
+      product.winningBid=highestBid._id
       product.status = "ended";
       await product.save();
 

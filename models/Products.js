@@ -21,6 +21,10 @@ const ProductsSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    payment: {
+      type: Boolean,
+      default: false,
+    },
     catagory: {
       type: String,
     },
@@ -57,6 +61,10 @@ const ProductsSchema = new mongoose.Schema(
     },
     winningBidAmount: {
       type: Number,
+    },
+    winningBid: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Bid",
     },
     createdAt: {
       type: Date,

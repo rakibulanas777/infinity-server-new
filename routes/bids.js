@@ -5,15 +5,14 @@ const {
   getAllBidsForProduct,
   approveBid,
   getBidsForProduct,
+  winBidAndPay,
 } = require("../controllers/bids");
 const { protect } = require("../middlewares/authMiddleware");
 
 // Place a bid on a product
 router.post("/:productId", placeBid);
 router.put("/:bidId/approve", approveBid);
-
-// Mark a bid as complete
-
+router.post("/:bidId/win-and-pay", winBidAndPay);
 router.get("/product/:productId/bids", protect, getAllBidsForProduct);
 router.get("/product/:productId/bid", getBidsForProduct);
 

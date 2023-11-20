@@ -4,6 +4,9 @@ const Products = require("../models/Products");
 const socketIO = require("../socket");
 const http = require("http");
 const io = require("../socket");
+const stripe = require("stripe")(
+  "sk_test_51LM2J1SIiDyURhxDcwcDsr2pkYCLeu8MVqvXDNb5Dgap0qkfEBn1O8H0GHos3NHaS68eWsR1ocBhbniPOLgHG5AL00WDJsrnCf"
+);
 // Place a bid on a product
 const placeBid = async (req, res) => {
   try {
@@ -118,15 +121,15 @@ const approveBid = async (req, res) => {
       // Set the winner information in the product
       product.winner = bid.user;
       product.winningBidAmount = bid.amount;
+      product.winningBid = bidId;
 
       await product.save();
 
-      res
-        .status(200)
-        .json({
-          message: "Bid approved, product ended, and winner selected",
-          success: true,
-        });
+      res.status(200).json({
+        message: "Bid approved, product ended, and winner selected",
+        success: true,
+        bid,
+      });
     } else {
       res.status(400).json({ message: "Bid already approved" });
     }
@@ -136,11 +139,73 @@ const approveBid = async (req, res) => {
   }
 };
 
+const winBidAndPay = async (req, res) => {
+  try {
+    const { bidId } = req.params;
 
+    const bid = await Bid.findById(bidId).populate("product");
+
+    if (!bid) {
+      return res.status(404).json({
+        success: false,
+        message: "Bid not found",
+      });
+    }
+
+    // Check if the bid is already paid
+    if (bid.payment) {
+      return res.status(400).json({
+        success: false,
+        message: "Bid is already paid",
+      });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: bid.product.title, // Product name
+            },
+            unit_amount: bid.amount * 100, // Amount in cents
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: "http://localhost:3000/success", // Redirect URL after successful payment
+      cancel_url: "http://localhost:3000/cancel", // Redirect URL if payment is canceled
+    });
+
+    // bid.approved = true;
+
+    await bid.save();
+    const product = bid.product;
+    product.status = "ended";
+    product.payment = true;
+
+    await product.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Payment successful. Bid is marked as paid.",
+      id: session.id,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
 
 module.exports = {
   approveBid,
   placeBid,
   getBidsForProduct,
+  winBidAndPay,
   getAllBidsForProduct,
 };
