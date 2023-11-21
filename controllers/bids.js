@@ -175,8 +175,8 @@ const winBidAndPay = async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: "http://localhost:3000/success", // Redirect URL after successful payment
-      cancel_url: "http://localhost:3000/cancel", // Redirect URL if payment is canceled
+      success_url: "http://localhost:5173/", // Redirect URL after successful payment
+      cancel_url: "http://localhost:5173/", // Redirect URL if payment is canceled
     });
 
     // bid.approved = true;
