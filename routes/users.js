@@ -1,5 +1,5 @@
 const express = require("express");
-
+const multer = require("multer");
 const {
   getUsers,
   loginController,
@@ -14,31 +14,21 @@ const {
 
 const { protect } = require("../middlewares/authMiddleware");
 
-const multer = require("multer");
-const moment = require("moment");
-// img storage path
-const imgconfig = multer.diskStorage({
-  destination: (req, file, callback) => {
-    callback(null, "../uploads");
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const destinationDir = "public/users";
+    if (!fs.existsSync(destinationDir)) {
+      fs.mkdirSync(destinationDir, { recursive: true });
+    }
+    cb(null, destinationDir);
   },
-  filename: (req, file, callback) => {
-    callback(null, `imgae-${Date.now()}. ${file.originalname}`);
+  filename: (req, file, cb) => {
+    const ext = file.originalname.split(".").pop();
+    cb(null, `image-${Date.now()}.${ext}`); // Set the file name for uploaded images
   },
 });
 
-// img filter
-const isImage = (req, file, callback) => {
-  if (file.mimetype.startsWith("image")) {
-    callback(null, true);
-  } else {
-    callback(new Error("only images is allowd"));
-  }
-};
-
-const upload = multer({
-  storage: imgconfig,
-  fileFilter: isImage,
-});
+const upload = multer({ storage });
 
 const router = express.Router();
 

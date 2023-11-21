@@ -118,6 +118,25 @@ const getProductsForUserBids = async (req, res) => {
           products: productsWithBids,
         },
       });
+    } else if (val === "complete") {
+      const wonProducts = await Products.find({
+        winner: userId,
+        delivered: true,
+      });
+      const productsWithBids = await Promise.all(
+        wonProducts.map(async (product) => {
+          const bidCount = await Bid.countDocuments({ product: product._id });
+          return { ...product._doc, bidCount };
+        })
+      );
+
+      res.status(200).json({
+        message: `all products`,
+        success: true,
+        data: {
+          products: productsWithBids,
+        },
+      });
     } else {
       const products = await Products.find({
         _id: { $in: productIds },
@@ -358,11 +377,61 @@ const getProductsForVendor = async (req, res) => {
   try {
     const vendorId = req.params.vendorId;
 
-    console.log(req.query.status);
     const val = req.query.status;
+
+    if (val === "paid") {
+      const products = await Products.find({
+        vendor: vendorId,
+        payment: true,
+      });
+
+      return res.status(201).send({
+        message: `your products`,
+        success: true,
+        data: {
+          products,
+        },
+      });
+    } else if (val === "delivered") {
+      const products = await Products.find({
+        vendor: vendorId,
+        delivered: true,
+      });
+
+      return res.status(201).send({
+        message: `your products`,
+        success: true,
+        data: {
+          products,
+        },
+      });
+    } else {
+      const products = await Products.find({
+        vendor: vendorId,
+        status: val,
+      });
+
+      return res.status(201).send({
+        message: `your products`,
+        success: true,
+        data: {
+          products,
+        },
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+const getPaidProductsForVendor = async (req, res) => {
+  try {
+    const vendorId = req.params.vendorId;
+    const val = req.query.delivered;
     const products = await Products.find({
       vendor: vendorId,
-      status: val,
+      payment: true,
+      delivered: val,
     });
 
     return res.status(201).send({
@@ -398,7 +467,7 @@ const selectWinner = async (req, res) => {
     if (highestBid) {
       product.winner = highestBid.user;
       product.winningBidAmount = highestBid.amount;
-      product.winningBid=highestBid._id
+      product.winningBid = highestBid._id;
       product.status = "ended";
       await product.save();
 
@@ -412,10 +481,46 @@ const selectWinner = async (req, res) => {
   }
 };
 
+const getTotalPaidProductsAndWinningAmount = async (req, res) => {
+  try {
+    const { vendorId } = req.params;
+
+    const totalPaidProducts = await Products.countDocuments({
+      vendor: vendorId,
+      payment: true,
+    });
+
+    const winningBids = await Products.find({
+      vendor: vendorId,
+      payment: true,
+    });
+
+    const totalWinningAmount = winningBids.reduce(
+      (sum, bid) => sum + bid.winningBidAmount,
+      0
+    );
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalPaidProducts,
+        totalWinningAmount,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
 module.exports = {
   getProductById,
   selectWinner,
   pauseProduct,
+  getPaidProductsForVendor,
   getProductsForVendor,
   getProductController,
   deleteProduct,
@@ -427,6 +532,7 @@ module.exports = {
   getProductsByCategory,
   getEndingSoonProducts,
   getNewProducts,
+  getTotalPaidProductsAndWinningAmount,
   markDelivered,
   createProduct,
 };
